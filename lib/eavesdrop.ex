@@ -24,8 +24,8 @@ defmodule Eavesdrop do
   # FSM Server functions
 
   @doc "Kicks off a user process"
-  def start_link(service \\ MusicService) do
-    :gen_fsm.start_link({:local, __MODULE__}, __MODULE__, [service], [])
+  def start_link() do
+    :gen_fsm.start_link({:local, __MODULE__}, __MODULE__, [], [])
   end
 
   @doc "
@@ -34,50 +34,53 @@ defmodule Eavesdrop do
   service is a callback module responsible for handling actual calls
   and changes on a theoretical server
   "
-  def init([service]) do
+  def init([]) do
+    {:ok, manager} = GenEvent.start_link
+    # TODO: convert to mon handler
+    GenEvent.add_handler(manager, MusicService, self())
     Process.flag(:trap_exit, true)
-    {:ok, :signin, [service]}
+    {:ok, :signin, [manager]}
   end
 
   @doc "Defines a handler for receiving messages while in the _signin_ state"
-  def signin({:signin, name}, [service] = loopdata) do
-    apply(service, :signin, [name])
+  def signin({:signin, name}, [manager] = state) do
+    GenEvent.notify(manager, {:signin, name})
 
-    {:next_state, :play, loopdata}
+    {:next_state, :play, state}
   end
-  def signin(_any, loopdata) do
-    {:next_state, :signin, loopdata}
+  def signin(_any, state) do
+    {:next_state, :signin, state}
   end
 
   @doc "Defines a handler for receiving messages while in the _idle_ state"
-  def idle(:idle, loopdata) do
-    {:next_state, :play, loopdata}
+  def idle(:idle, state) do
+    {:next_state, :play, state}
   end
-  def idle({:play, track}, [service] = loopdata) do
-    apply(service, :play, [track])
+  def idle({:play, track}, [manager] = state) do
+    GenEvent.notify(manager, {:play, track})
 
-    {:next_state, :play, loopdata}
+    {:next_state, :play, state}
   end
-  def idle(:signout, [service] = loopdata) do
-    apply(service, :signout, [])
+  def idle(:signout, [manager] = state) do
+    GenEvent.notify(manager, :signout)
 
-    {:next_state, :signin, loopdata}
+    {:next_state, :signin, state}
   end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
-  def play({:play, track}, [service] = loopdata) do
-    apply(service, :play, [track])
+  def play({:play, track}, [manager] = state) do
+    GenEvent.notify(manager, {:play, track})
 
-    {:next_state, :play, loopdata}
+    {:next_state, :play, state}
   end
-  def play(:stop, [service] = loopdata) do
-    apply(service, :idle, [])
+  def play(:stop, [manager] = state) do
+    GenEvent.notify(manager, :idle)
 
-    {:next_state, :idle, loopdata}
+    {:next_state, :idle, state}
   end
-  def play(:signout, [service] = loopdata) do
-    apply(service, :signout, [])
+  def play(:signout, [manager] = state) do
+    GenEvent.notify(manager, :signout)
 
-    {:next_state, :signin, loopdata}
+    {:next_state, :signin, state}
   end
 end
