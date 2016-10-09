@@ -1,11 +1,12 @@
 # Eavesdrop
 
-This is the reboot of Eavesdrop. The goal is to
-provide a generic backend which can function against ANY music
-service. My idea is to build a simple prototype frontend in Elm which
-will talk to a web module in this library. That web module may start
-life as a [Plug](https://github.com/elixir-lang/plug) or it may be a
-full Phoenix application; TBD.
+This is the reboot of Eavesdrop (described
+[here](http://lifehacker.com/5964202/eavesdrop-for-rdio-lets-you-listen-in-on-your-friends-music-streams)). The
+goal is to provide a generic backend which can function against ANY
+music service. My idea is to build a simple prototype frontend in Elm
+which will talk to a web module in this library. That web module may
+start life as a [Plug](https://github.com/elixir-lang/plug) or it may
+be a full Phoenix application; TBD.
 
 In the mean time, feel free to play with this simple example
 
