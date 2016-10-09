@@ -35,16 +35,15 @@ defmodule Eavesdrop do
   and changes on a theoretical server
   "
   def init([]) do
-    {:ok, manager} = GenEvent.start_link
-    # TODO: convert to mon handler
-    GenEvent.add_handler(manager, MusicService, self())
+    GenEvent.add_handler(:eavesdrop_event_manager, MusicService, self())
+
     Process.flag(:trap_exit, true)
-    {:ok, :signin, [manager]}
+    {:ok, :signin, []}
   end
 
   @doc "Defines a handler for receiving messages while in the _signin_ state"
-  def signin({:signin, name}, [manager] = state) do
-    GenEvent.notify(manager, {:signin, name})
+  def signin({:signin, name}, state) do
+    GenEvent.notify(:eavesdrop_event_manager, {:signin, name})
 
     {:next_state, :play, state}
   end
@@ -56,30 +55,30 @@ defmodule Eavesdrop do
   def idle(:idle, state) do
     {:next_state, :play, state}
   end
-  def idle({:play, track}, [manager] = state) do
-    GenEvent.notify(manager, {:play, track})
+  def idle({:play, track}, state) do
+    GenEvent.notify(:eavesdrop_event_manager, {:play, track})
 
     {:next_state, :play, state}
   end
-  def idle(:signout, [manager] = state) do
-    GenEvent.notify(manager, :signout)
+  def idle(:signout, state) do
+    GenEvent.notify(:eavesdrop_event_manager, :signout)
 
     {:next_state, :signin, state}
   end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
-  def play({:play, track}, [manager] = state) do
-    GenEvent.notify(manager, {:play, track})
+  def play({:play, track}, state) do
+    GenEvent.notify(:eavesdrop_event_manager, {:play, track})
 
     {:next_state, :play, state}
   end
-  def play(:stop, [manager] = state) do
-    GenEvent.notify(manager, :idle)
+  def play(:stop, state) do
+    GenEvent.notify(:eavesdrop_event_manager, :idle)
 
     {:next_state, :idle, state}
   end
-  def play(:signout, [manager] = state) do
-    GenEvent.notify(manager, :signout)
+  def play(:signout, state) do
+    GenEvent.notify(:eavesdrop_event_manager, :signout)
 
     {:next_state, :signin, state}
   end
