@@ -65,6 +65,10 @@ defmodule Eavesdrop do
 
     {:next_state, :signin, state}
   end
+  def idle(_any, state) do
+    GenEvent.notify(:eavesdrop_event_manager, :idle)
+    {:next_state, :idle, state}
+  end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
   def play({:play, track}, state) do
@@ -81,5 +85,10 @@ defmodule Eavesdrop do
     GenEvent.notify(:eavesdrop_event_manager, :signout)
 
     {:next_state, :signin, state}
+  end
+  def play(_any, state) do
+    GenEvent.notify(:eavesdrop_event_manager, :idle)
+
+    {:next_state, :idle, state}
   end
 end
