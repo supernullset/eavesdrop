@@ -1,6 +1,6 @@
 # Eavesdrop
 
-Hello Gentlemen. This is the reboot of Eavesdrop. The goal is to
+This is the reboot of Eavesdrop. The goal is to
 provide a generic backend which can function against ANY music
 service. My idea is to build a simple prototype frontend in Elm which
 will talk to a web module in this library. That web module may start
@@ -13,7 +13,7 @@ In the mean time, feel free to play with this simple example
 Erlang/OTP 19 [erts-8.0.2] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
 
 Interactive Elixir (1.3.2) - press Ctrl+C to exit (type h() ENTER for help)
-iex(1)> Eavesdrop.start_link
+iex(1)> Eavesdrop.Supervisor.start_link
 {:ok, #PID<0.108.0>}
 iex(2)> Eavesdrop.user_signin "Sean"
 :ok
@@ -22,7 +22,7 @@ iex(3)> Eavesdrop.play_track "Only A Lad"
 You are now listening to Only A Lad on Rdio
 :ok
 iex(4)> Eavesdrop.user_stop
-Idlein
+Idle
 :ok
 iex(5)> Eavesdrop.play_track "When the lights go out"
 You are now listening to When the lights go out on Rdio
