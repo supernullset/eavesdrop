@@ -10,7 +10,7 @@ defmodule MusicService do
   end
 
   def idle do
-    IO.puts "Idlein"
+    IO.puts "Idle"
   end
 
   def signout do

@@ -24,49 +24,60 @@ defmodule Eavesdrop do
   # FSM Server functions
 
   @doc "Kicks off a user process"
-  def start_link do
-    :gen_fsm.start_link({:local, __MODULE__}, __MODULE__, [], [])
+  def start_link(service \\ MusicService) do
+    :gen_fsm.start_link({:local, __MODULE__}, __MODULE__, [service], [])
   end
 
-  @doc "Puts the FSM in its initial state and traps exits for loud errors"
-  def init([]) do
+  @doc "
+  Puts the FSM in its initial state and traps exits for loud errors
+
+  service is a callback module responsible for handling actual calls
+  and changes on a theoretical server
+  "
+  def init([service]) do
     Process.flag(:trap_exit, true)
-    {:ok, :signin, []}
+    {:ok, :signin, [service]}
   end
 
   @doc "Defines a handler for receiving messages while in the _signin_ state"
-  def signin({:signin, name}, _loopdata) do
-    MusicService.signin(name)
-    {:next_state, :play, []}
+  def signin({:signin, name}, [service] = loopdata) do
+    apply(service, :signin, [name])
+
+    {:next_state, :play, loopdata}
   end
-  def signin(_any) do
-    {:next_state, :signin, []}
+  def signin(_any, loopdata) do
+    {:next_state, :signin, loopdata}
   end
 
   @doc "Defines a handler for receiving messages while in the _idle_ state"
-  def idle(:idle, _loopdata) do
-    {:next_state, :play, []}
+  def idle(:idle, loopdata) do
+    {:next_state, :play, loopdata}
   end
-  def idle({:play, track}, _loopdata) do
-    MusicService.play(track)
-    {:next_state, :play, []}
+  def idle({:play, track}, [service] = loopdata) do
+    apply(service, :play, [track])
+
+    {:next_state, :play, loopdata}
   end
-  def idle(:signout, _loopdata) do
-    MusicService.signout
-    {:next_state, :signin, []}
+  def idle(:signout, [service] = loopdata) do
+    apply(service, :signout, [])
+
+    {:next_state, :signin, loopdata}
   end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
-  def play({:play, track}, _loopdata) do
-    MusicService.play(track)
-    {:next_state, :play, []}
+  def play({:play, track}, [service] = loopdata) do
+    apply(service, :play, [track])
+
+    {:next_state, :play, loopdata}
   end
-  def play(:stop, _loopdata) do
-    MusicService.idle
-    {:next_state, :idle, []}
+  def play(:stop, [service] = loopdata) do
+    apply(service, :idle, [])
+
+    {:next_state, :idle, loopdata}
   end
-  def play(:signout, _loopdata) do
-    MusicService.signout
-    {:next_state, :signin, []}
+  def play(:signout, [service] = loopdata) do
+    apply(service, :signout, [])
+
+    {:next_state, :signin, loopdata}
   end
 end
