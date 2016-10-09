@@ -11,24 +11,21 @@ be a full Phoenix application; TBD.
 In the mean time, feel free to play with this simple example
 
 ```
-Erlang/OTP 19 [erts-8.0.2] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
+iex -S mix run
 
-Interactive Elixir (1.3.2) - press Ctrl+C to exit (type h() ENTER for help)
-iex(1)> Eavesdrop.Supervisor.start_link
-{:ok, #PID<0.108.0>}
-iex(2)> Eavesdrop.user_signin "Sean"
+iex(1)> EavesdropOTP.user_signin "sean"
+Hi sean, welcome back
 :ok
-Hi Sean, welcome back
-iex(3)> Eavesdrop.play_track "Only A Lad"
-You are now listening to Only A Lad on Rdio
+iex(2)> EavesdropOTP.play_track "Memphis Bells"
+You are now listening to Memphis Bells on Rdio
 :ok
-iex(4)> Eavesdrop.user_stop
+iex(3)> EavesdropOTP.user_stop
 Idle
 :ok
-iex(5)> Eavesdrop.play_track "When the lights go out"
-You are now listening to When the lights go out on Rdio
+iex(4)> EavesdropOTP.play_track "Soul Meets Body"
+You are now listening to Soul Meets Body on Rdio
 :ok
-iex(6)> Eavesdrop.user_signout
+iex(5)> EavesdropOTP.user_signout
 See you next time
 :ok
 ```
