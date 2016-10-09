@@ -2,7 +2,6 @@ defmodule EavesdropOTP.Supervisor do
   use Supervisor
 
   def start_link do
-    IO.puts "booting the supervisor"
     Supervisor.start_link(__MODULE__, :ok)
   end
 
