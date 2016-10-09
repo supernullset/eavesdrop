@@ -1,4 +1,4 @@
-defmodule Eavesdrop.Supervisor do
+defmodule EavesdropOTP.Supervisor do
   use Supervisor
 
   def start_link do
@@ -9,7 +9,7 @@ defmodule Eavesdrop.Supervisor do
   def init(:ok) do
     children = [
       worker(GenEvent, [[name: :eavesdrop_event_manager]]),
-      worker(Eavesdrop, []),
+      worker(EavesdropOTP, []),
     ]
 
     supervise(children, strategy: :one_for_one)

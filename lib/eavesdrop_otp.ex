@@ -1,4 +1,4 @@
-defmodule Eavesdrop do
+defmodule EavesdropOTP do
 
   @moduledoc "A module which represents the current actions of a user
   on the system. The FSM can be in 1 of 3 states at any given time:
