@@ -91,4 +91,8 @@ defmodule Eavesdrop do
 
     {:next_state, :idle, state}
   end
+
+  def terminate(reason, _state_name, _state) do
+    GenEvent.notify(:eavesdrop_event_manager, {:shutdown, reason})
+  end
 end

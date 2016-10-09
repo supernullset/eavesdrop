@@ -25,4 +25,10 @@ defmodule MusicService do
 
     {:ok, parent}
   end
+
+  def handle_event({:shutdown, reason}, parent) do
+    IO.puts "Service is going down..."
+    IO.puts inspect(reason)
+    {:ok, parent}
+  end
 end
