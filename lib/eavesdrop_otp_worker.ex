@@ -7,8 +7,9 @@ defmodule EavesdropOTP.Worker do
   @doc "Kicks off a user process"
   def start_link(user_name) do
     :gen_fsm.start_link(
-      {:via, :gproc, {:n, :l, {__MODULE__, user_name}}}, #NameScope
-      user_name, # arguments to pass to init
+      whereis(user_name), # NameScope
+      __MODULE__, # Module
+      user_name,  # arguments to pass to init
       []
     )
   end
@@ -21,6 +22,7 @@ defmodule EavesdropOTP.Worker do
   "
   def init(user_name) do
     MusicService.signin(user_name)
+    Process.flag(:trap_exit, true)
 
     {:ok, :play, user_name}
   end
@@ -29,17 +31,18 @@ defmodule EavesdropOTP.Worker do
 
   @doc "External interaction functions"
   def play_track(user_name, track) do
-    :gen_fsm.send_event(whereis(user_name), {:play, track})
+    IO.puts "worker sending: #{inspect(whereis(user_name))} {:play, #{track}}"
+    :gen_fsm.sync_send_event(whereis(user_name), {:play, track})
   end
   def stop_track(user_name) do
-    :gen_fsm.send_event(whereis(user_name), :stop)
+    :gen_fsm.sync_send_event(whereis(user_name), :stop)
   end
   def signout(user_name) do
     :gen_fsm.stop(whereis(user_name))
   end
 
   def whereis(user_name) do
-    :gproc.whereis_name({:n, :l, {__MODULE__, user_name}})
+    {:via, :gproc, {:n, :l, {:eavesdrop_worker, user_name}}}
   end
 
   # FSM Server functions

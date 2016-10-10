@@ -4,7 +4,7 @@ defmodule MusicService do
 
   def start_link(user_name) do
     GenServer.start_link(__MODULE__, user_name,
-      name: {:via, :gproc, {:n, :l, {__MODULE__, user_name}}}
+      name: whereis(user_name)
     )
   end
 
@@ -36,7 +36,7 @@ defmodule MusicService do
 
   # internal functions
   def whereis(user_name) do
-    :gproc.whereis_name({:n, :l, {__MODULE__, user_name}})
+    {:via, :gproc, {:n, :l, {:music_service, user_name}}}
   end
 
   def handle_call({:play, trackname}, _from, user_name) do
