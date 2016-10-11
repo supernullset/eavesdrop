@@ -1,10 +1,10 @@
-defmodule MusicService do
+defmodule EavesdropOTP.MusicService do
   @name "Rdio"
   use GenServer
 
   def start_link(user_name) do
     GenServer.start_link(__MODULE__, user_name,
-      name: whereis(user_name)
+      name: via_tuple(user_name)
     )
   end
 
@@ -14,29 +14,29 @@ defmodule MusicService do
 
   # interface functions
   def play(user, trackname) do
-    GenServer.call(whereis(user), {:play, trackname})
+    GenServer.call(via_tuple(user), {:play, trackname})
   end
 
   def idle(user) do
-    GenServer.call(whereis(user), :idle)
+    GenServer.call(via_tuple(user), :idle)
   end
 
   def signin(user) do
-    GenServer.call(whereis(user), :signin)
+    GenServer.call(via_tuple(user), :signin)
   end
 
   def signout(user) do
-    GenServer.call(whereis(user), :signout)
+    GenServer.call(via_tuple(user), :signout)
   end
 
   def shutdown(user, reason) do
-    GenServer.call(whereis(user), {:shutdown, reason})
+    GenServer.call(via_tuple(user), {:shutdown, reason})
   end
 
 
   # internal functions
-  def whereis(user_name) do
-    {:via, :gproc, {:n, :l, {:music_service, user_name}}}
+  def via_tuple(user_name) do
+    {:via, :gproc, {:n, :l, "#{user_name}_music_service"}}
   end
 
   def handle_call({:play, trackname}, _from, user_name) do

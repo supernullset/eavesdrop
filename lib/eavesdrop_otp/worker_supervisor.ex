@@ -7,7 +7,7 @@ defmodule EavesdropOTP.WorkerSupervisor do
 
   def init(user_name) do
     processes = [
-      worker(MusicService, [user_name]),
+      worker(EavesdropOTP.MusicService, [user_name]),
       worker(EavesdropOTP.Worker, [user_name]),
     ]
     supervise(processes, strategy: :one_for_one)
