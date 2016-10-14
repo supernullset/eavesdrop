@@ -26,8 +26,10 @@ defmodule EavesdropOTP.Worker do
     EavesdropOTP.MusicService.signin(user_name)
     Process.flag(:trap_exit, true)
 
-    {:state_functions, :idle, user_name}
+    {:ok, :idle, user_name}
   end
+
+  def callback_mode, do: :state_functions
 
   def terminate(reason, _state_name, user_name) do
     EavesdropOTP.MusicService.shutdown(user_name, reason)
