@@ -4,9 +4,11 @@ defmodule EavesdropOTP.Worker do
   signin, idle, or play. This module defines the actions which take
   each state to the others"
 
+  @behaviour :gen_statem
+
   @doc "Kicks off a user process"
   def start_link(user_name) do
-    :gen_fsm.start_link(
+    :gen_statem.start_link(
       via_tuple(user_name), # NameScope
       __MODULE__, # Module
       user_name,  # arguments to pass to init
@@ -24,20 +26,29 @@ defmodule EavesdropOTP.Worker do
     EavesdropOTP.MusicService.signin(user_name)
     Process.flag(:trap_exit, true)
 
-    {:ok, :play, user_name}
+    {:state_functions, :idle, user_name}
   end
+
+  def terminate(reason, _state_name, user_name) do
+    EavesdropOTP.MusicService.shutdown(user_name, reason)
+  end
+
+  def code_change(_vsn, state, data, _extra) do
+    {:ok, state, data}
+  end
+
 
   #External functions
 
   @doc "External interaction functions"
   def play_track(user_name, track) do
-    :gen_fsm.sync_send_event(via_tuple(user_name), {:play, track})
+    :gen_statem.call(via_tuple(user_name), {:play, track})
   end
   def stop_track(user_name) do
-    :gen_fsm.sync_send_event(via_tuple(user_name), :stop)
+    :gen_statem.call(via_tuple(user_name), :stop)
   end
   def signout(user_name) do
-    :gen_fsm.stop(via_tuple(user_name))
+    :gen_statem.stop(via_tuple(user_name))
   end
 
   def via_tuple(user_name) do
@@ -46,38 +57,34 @@ defmodule EavesdropOTP.Worker do
 
   # FSM Server functions
   @doc "Defines a handler for receiving messages while in the _idle_ state"
-  def idle(:idle, _from, user_name) do
-    {:next_state, :play, user_name}
+  def idle({:call, from}, :idle, user_name) do
+    {:next_state, :play, user_name, [{:reply, from, :play}]}
   end
-  def idle({:play, track}, _from, user_name) do
+  def idle({:call, from}, {:play, track}, user_name) do
     EavesdropOTP.MusicService.play(user_name, track)
 
-    {:next_state, :play, user_name}
+    {:next_state, :play, user_name, [{:reply, from, :play}]}
   end
-  def idle(_any, _from, user_name) do
+  def idle(_any, from, user_name) do
     EavesdropOTP.MusicService.idle(user_name)
 
-    {:next_state, :idle, user_name}
+    {:keep_state, user_name, [{:reply, from, user_name}]}
   end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
-  def play({:play, track}, _from, user_name) do
+  def play({:call, from}, {:play, track}, user_name) do
     EavesdropOTP.MusicService.play(user_name, track)
 
-    {:next_state, :play, user_name}
+    {:next_state, :play, user_name, [{:reply, from, :play}]}
   end
-  def play(:stop, _from, user_name) do
+  def play({:call, from}, :stop, user_name) do
     EavesdropOTP.MusicService.idle(user_name)
 
-    {:next_state, :idle, user_name}
+    {:next_state, :idle, user_name, [{:reply, from, :idle}]}
   end
-  def play(_any, _from, user_name) do
+  def play(_any, from, user_name) do
     EavesdropOTP.MusicService.idle(user_name)
 
-    {:next_state, :idle, user_name}
-  end
-
-  def terminate(reason, _state_name, user_name) do
-    EavesdropOTP.MusicService.shutdown(user_name, reason)
+    {:keep_state, user_name, [{:reply, from, user_name}]}
   end
 end
