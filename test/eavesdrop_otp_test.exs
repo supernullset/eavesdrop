@@ -1,15 +1,18 @@
 defmodule EavesdropOTPTest do
   use ExUnit.Case
-  doctest EavesdropOTP
+  doctest EavesdropOTP.Worker
+  doctest EavesdropOTP.WorkerSupervisor
+  doctest EavesdropOTP.MusicService
+  doctest EavesdropOTP.Supervisor
 
   test "Normal user state changes" do
-    {:ok, _pid} = EavesdropOTP.Supervisor.start_link()
+    test_user = "test_user"
 
-    EavesdropOTP.user_signin("test_user")
-    EavesdropOTP.play_track("test_track")
-    EavesdropOTP.user_stop
-    EavesdropOTP.play_track("test_track 2")
-    EavesdropOTP.user_signout
+    EavesdropOTP.Supervisor.start_child(test_user)
+    EavesdropOTP.Worker.play_track(test_user, "test_track")
+    EavesdropOTP.Worker.stop_track(test_user)
+    EavesdropOTP.Worker.play_track(test_user, "test_track 2")
+    EavesdropOTP.Worker.signout(test_user)
 
     assert 1==1
   end
