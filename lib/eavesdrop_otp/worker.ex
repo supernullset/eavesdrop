@@ -63,30 +63,30 @@ defmodule EavesdropOTP.Worker do
     {:next_state, :play, user_name, [{:reply, from, :play}]}
   end
   def idle({:call, from}, {:play, track}, user_name) do
-    EavesdropOTP.MusicService.play(user_name, track)
+    {:ok, message} = EavesdropOTP.MusicService.play(user_name, track)
 
-    {:next_state, :play, user_name, [{:reply, from, :play}]}
+    {:next_state, :play, user_name, [{:reply, from, {:ok, message}}]}
   end
   def idle(_any, from, user_name) do
-    EavesdropOTP.MusicService.idle(user_name)
+    {:ok, message} = EavesdropOTP.MusicService.idle(user_name)
 
-    {:keep_state, user_name, [{:reply, from, user_name}]}
+    {:keep_state, user_name, [{:reply, from, {:ok, message}}]}
   end
 
   @doc "Defines messages for receiving messages while on the _play_ state"
   def play({:call, from}, {:play, track}, user_name) do
-    EavesdropOTP.MusicService.play(user_name, track)
+    {:ok, message} = EavesdropOTP.MusicService.play(user_name, track)
 
-    {:next_state, :play, user_name, [{:reply, from, :play}]}
+    {:next_state, :play, user_name, [{:reply, from, {:ok, message}}]}
   end
   def play({:call, from}, :stop, user_name) do
-    EavesdropOTP.MusicService.idle(user_name)
+    {:ok, message} = EavesdropOTP.MusicService.idle(user_name)
 
-    {:next_state, :idle, user_name, [{:reply, from, :idle}]}
+    {:next_state, :idle, user_name, [{:reply, from, {:ok, message}}]}
   end
   def play(_any, from, user_name) do
-    EavesdropOTP.MusicService.idle(user_name)
+    {:ok, message} = EavesdropOTP.MusicService.idle(user_name)
 
-    {:keep_state, user_name, [{:reply, from, user_name}]}
+    {:keep_state, user_name, [{:reply, from, {:ok, message}}]}
   end
 end
