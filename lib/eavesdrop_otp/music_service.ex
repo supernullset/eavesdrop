@@ -40,35 +40,34 @@ defmodule EavesdropOTP.MusicService do
   end
 
   def handle_call({:play, trackname}, _from, user_name) do
-    IO.puts "You are now listening to #{trackname} on #{@name}"
-
-    {:reply, :ok, user_name}
+    message = "You are now listening to #{trackname} on #{@name}"
+    {:reply, {:ok, message}, user_name}
   end
 
   def handle_call(:idle, _from, user_name) do
-    IO.puts "Idle"
+    message = "Idle"
 
-    {:reply, :ok, user_name}
+    {:reply, {:ok, message}, user_name}
   end
 
   def handle_call(:signin, _from, user_name) do
-    IO.puts "Welcome back to #{@name} #{user_name}"
+    message =  "Welcome back to #{@name} #{user_name}"
 
-    {:reply, :ok, user_name}
+    {:reply, {:ok, message}, user_name}
   end
 
   def handle_call(:signout, _from, user_name) do
-    IO.puts "See you next time"
+    message = "See you next time"
 
-    {:reply, :ok, user_name}
+    {:reply, {:ok, message}, user_name}
   end
 
   def handle_call({:shutdown, reason}, _from, user_name) do
-    IO.puts "Service is going down..."
-    IO.puts inspect(reason)
+    message = "Service is going down..."
+    reason  = inspect(reason)
 
     # TODO: handle cleanup?
 
-    {:reply, :ok, user_name}
+    {:reply, {:ok, message, reason}, user_name}
   end
 end
