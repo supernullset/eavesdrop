@@ -116,19 +116,19 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "utility function to return actual pid of process"
-  def get_pid(user_name) do
+  defp get_pid(user_name) do
     user_name
     |> gproc_key
     |> :gproc.where
   end
 
   @doc "utility function to lookup a process in gproc"
-  def via_tuple(user_name) do
+  defp via_tuple(user_name) do
     {:via, :gproc, gproc_key(user_name)}
   end
 
   @doc "The gproc key"
-  def gproc_key(user_name) do
+  defp gproc_key(user_name) do
     {:n, :l, "#{user_name}_session"}
   end
 

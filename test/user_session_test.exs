@@ -4,10 +4,6 @@ defmodule EavesdropOTPTest do
   use ExUnit.Case, async: true
 
   doctest EavesdropOTP.UserSession
-  doctest EavesdropOTP.SessionSupervisor
-  doctest EavesdropOTP.MusicService.Local
-  doctest EavesdropOTP.Supervisor
-
 
   test "state changes" do
     user = "state_user"
@@ -49,4 +45,14 @@ defmodule EavesdropOTPTest do
     assert UserSession.current_track(user) == "test_track"
   end
 
+  test "stop_track updates the state" do
+    user = "stop_user"
+
+    UserSession.signin(user)
+    UserSession.play_track(user, "test_track")
+    UserSession.stop_track(user)
+
+    assert UserSession.current_track(user) == nil
+    assert UserSession.last_message(user) == "Idle"
+  end
 end
