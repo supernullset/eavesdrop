@@ -52,9 +52,20 @@ defmodule EavesdropOTP.Worker do
   def signout(user_name) do
     :gen_statem.stop(via_tuple(user_name))
   end
+  def present?(user_name) do
+    case :gproc.where(gproc_key(user_name)) do
+      pid when is_pid(pid) -> true
+      :undefined -> false
+      _ -> false
+    end
+  end
 
   def via_tuple(user_name) do
-    {:via, :gproc, {:n, :l, "#{user_name}_worker"}}
+    {:via, :gproc, gproc_key(user_name)}
+  end
+
+  def gproc_key(user_name) do
+    {:n, :l, "#{user_name}_worker"}
   end
 
   # FSM Server functions
