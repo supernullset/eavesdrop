@@ -1,13 +1,15 @@
 defmodule EavesdropOTP.SessionSupervisor do
   use Supervisor
 
+  @music_service Application.get_env(:eavesdrop_otp, :music_service)
+
   def start_link(user_name) do
     Supervisor.start_link(__MODULE__, [user_name], name: via_tuple(user_name))
   end
 
   def init(user_name) do
     processes = [
-      worker(EavesdropOTP.MusicService, [user_name]),
+      worker(@music_service, [user_name]),
       worker(EavesdropOTP.UserSession, [user_name]),
     ]
     supervise(processes, strategy: :one_for_one)

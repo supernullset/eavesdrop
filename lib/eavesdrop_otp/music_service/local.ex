@@ -1,4 +1,4 @@
-defmodule EavesdropOTP.MusicService do
+defmodule EavesdropOTP.MusicService.Local do
   @name "Rdio"
   use GenServer
 
