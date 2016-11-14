@@ -18,7 +18,7 @@ defmodule EavesdropOTP.Mixfile do
       applications: [:logger, :gproc],
       mod: {EavesdropOTP.Application, []},
       env: [music_service: EavesdropOTP.MusicService.Local],
-      registered: [],
+      registered: [:eavesdrop_supervisor],
     ]
 
   end
