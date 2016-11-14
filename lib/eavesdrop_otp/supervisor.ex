@@ -1,12 +1,14 @@
 defmodule EavesdropOTP.Supervisor do
   use Supervisor
 
+  @supervisor_name :eavesdrop_supervisor
+
   def start_link do
-    Supervisor.start_link(__MODULE__, nil, name: :eavesdrop_supervisor)
+    Supervisor.start_link(__MODULE__, nil, name: @supervisor_name)
   end
 
   def start_child(user_name) do
-    Supervisor.start_child(:eavesdrop_supervisor, [user_name])
+    Supervisor.start_child(@supervisor_name, [user_name])
   end
 
   def init(_) do
@@ -22,6 +24,6 @@ defmodule EavesdropOTP.Supervisor do
     |> EavesdropOTP.SessionSupervisor.gproc_key
     |> :gproc.where()
 
-    Supervisor.terminate_child(:eavesdrop_supervisor, pid)
+    Supervisor.terminate_child(@supervisor_name, pid)
   end
 end

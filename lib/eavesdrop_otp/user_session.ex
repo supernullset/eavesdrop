@@ -4,7 +4,8 @@ defmodule EavesdropOTP.UserSession do
   signin, idle, or play. This module defines the actions which take
   each state to the others"
 
-  @music_service Application.get_env(:eavesdrop_otp, :music_service)
+  def music_service(), do: Application.get_env(:eavesdrop_otp, :music_service)
+
   @behaviour :gen_statem
 
   defmodule UserState do
@@ -28,7 +29,7 @@ defmodule EavesdropOTP.UserSession do
   and changes on a theoretical server
   "
   def init(user_name) do
-    @music_service.signin(user_name)
+    music_service.signin(user_name)
 
     {:ok, :idle, %UserState{user_name: user_name}}
   end
@@ -37,7 +38,7 @@ defmodule EavesdropOTP.UserSession do
 
   @doc "shutdown callback for the user"
   def terminate(reason, _state_name, %UserState{user_name: user_name} = state) do
-    @music_service.shutdown(user_name, reason)
+    music_service.shutdown(user_name, reason)
   end
 
   @doc "required function for hot upgrades"
@@ -145,7 +146,7 @@ defmodule EavesdropOTP.UserSession do
     }
   end
   def idle({:call, from}, {:play, track}, %UserState{user_name: user_name} = state) do
-    {:ok, message} = @music_service.play(user_name, track)
+    {:ok, message} = music_service.play(user_name, track)
 
     {
       :next_state,
@@ -166,7 +167,7 @@ defmodule EavesdropOTP.UserSession do
     }
   end
   def idle(_any, from, %UserState{user_name: user_name} = state) do
-    {:ok, message} = @music_service.idle(user_name)
+    {:ok, message} = music_service.idle(user_name)
 
     {
       :keep_state,
@@ -178,7 +179,7 @@ defmodule EavesdropOTP.UserSession do
 
   @doc "Defines messages for receiving messages while on the _play_ state"
   def play({:call, from}, {:play, track}, %UserState{user_name: user_name} = state) do
-    {:ok, message} = @music_service.play(user_name, track)
+    {:ok, message} = music_service.play(user_name, track)
 
     {
       :next_state,
@@ -190,7 +191,7 @@ defmodule EavesdropOTP.UserSession do
     }
   end
   def play({:call, from}, :stop, %UserState{user_name: user_name} = state) do
-    {:ok, message} = @music_service.idle(user_name)
+    {:ok, message} = music_service.idle(user_name)
 
     {
       :next_state,
@@ -211,7 +212,7 @@ defmodule EavesdropOTP.UserSession do
     }
   end
   def play(_any, from, %UserState{user_name: user_name} = state) do
-    {:ok, message} = @music_service.idle(user_name)
+    {:ok, message} = music_service.idle(user_name)
 
     {
       :keep_state,
