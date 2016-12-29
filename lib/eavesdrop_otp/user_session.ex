@@ -10,9 +10,14 @@ defmodule EavesdropOTP.UserSession do
 
   defmodule UserState do
     defstruct user_name: nil, current_track: nil, last_message: "Idle"
+
+    @type user_state(user_name, current_track, last_message) :: %UserState{user_name: user_name, current_track: current_track, last_message: last_message}
+
+    @type user_state :: %UserState{user_name: string, current_track: string, last_message: string}
   end
 
   @doc "Kicks off a user process"
+  @spec start_link(string) :: {atom, pid}
   def start_link(user_name) do
     :gen_statem.start_link(
       via_tuple(user_name), # NameScope
@@ -50,6 +55,7 @@ defmodule EavesdropOTP.UserSession do
   #External functions
 
   @doc "Play a track for a user"
+  @spec play_track(string, string) :: :gen_statem.term
   def play_track(user_name, track) do
     via = via_tuple(user_name)
 
@@ -57,6 +63,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "Stop a track for a user"
+  @spec stop_track(string) :: :gen_statem.term
   def stop_track(user_name) do
     via = via_tuple(user_name)
 
@@ -64,11 +71,13 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "Signin user"
+  @spec signin(string) :: {atom, atom}
   def signin(user_name) do
     EavesdropOTP.Supervisor.start_child(user_name)
   end
 
   @doc "Signout user"
+  @spec signout(string) :: {atom, atom}
   def signout(user_name) do
     # This is arguably too raw. Rather than terminating at the top, I
     # would prefer to be able to gracefully shut down from within this
@@ -77,6 +86,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "Determine if a user is registered in the system"
+  @spec present?(string) :: boolean
   def present?(user_name) do
     case :gproc.where(gproc_key(user_name)) do
       pid when is_pid(pid) -> true
@@ -86,6 +96,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "Get the last message for user"
+  @spec last_message(string) :: string
   def last_message(user_name) do
     %UserState{
       last_message: last_message,
@@ -97,6 +108,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "Get the current track name for a user"
+  @spec current_track(string) :: string
   def current_track(user_name) do
     %UserState{
       current_track: current_track,
@@ -108,6 +120,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "utility function to get the current state held in the statem process"
+  @spec status(string) :: UserState.user_state
   defp status(user_name) do
     via = via_tuple(user_name)
 
@@ -117,6 +130,7 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "utility function to return actual pid of process"
+  @spec get_pid(string) :: pid
   defp get_pid(user_name) do
     user_name
     |> gproc_key
@@ -124,11 +138,13 @@ defmodule EavesdropOTP.UserSession do
   end
 
   @doc "utility function to lookup a process in gproc"
+#  @spec via_tuple(string) :: {:via, :gproc, {:n, :l, any}}
   defp via_tuple(user_name) do
     {:via, :gproc, gproc_key(user_name)}
   end
 
   @doc "The gproc key"
+  @spec gproc_key(string) :: { :n, :l, any }
   defp gproc_key(user_name) do
     {:n, :l, "#{user_name}_session"}
   end

@@ -35,6 +35,7 @@ defmodule EavesdropOTP.Mixfile do
   defp deps do
     [
       {:gproc, "~> 0.6.1"},
+      {:dialyxir, "~> 0.4", only: [:dev]},
     ]
   end
 end

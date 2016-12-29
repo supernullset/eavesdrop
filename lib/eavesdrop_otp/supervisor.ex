@@ -20,10 +20,11 @@ defmodule EavesdropOTP.Supervisor do
 
   @doc "An ungraceful way to remove users from the application"
   def terminate_child(user_name) do
-    pid = user_name
+    child_pid = user_name
     |> EavesdropOTP.SessionSupervisor.gproc_key
     |> :gproc.where()
 
-    Supervisor.terminate_child(@supervisor_name, pid)
+    Supervisor.terminate_child(@supervisor_name, child_pid)
   end
+
 end
